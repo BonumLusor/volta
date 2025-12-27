@@ -1,0 +1,123 @@
+version: '3.8'
+
+services:
+  # --- SITE DE PRODUÇÃO (OTIMIZADO) ---
+  web:
+    image: oven/bun:alpine
+    working_dir: /src
+    volumes:
+      - ./nuxt:/src
+    command: >
+      sh -c "bun install && 
+             bun x nuxi build && 
+             PORT=3000 bun .output/server/index.mjs"
+    environment:
+      - NODE_ENV=production
+      # Variáveis de Banco para Produção
+      - NUXT_DB_HOST=db
+      - NUXT_DB_PORT=3306
+      - NUXT_DB_NAME=automaportal_prod
+      - NUXT_DB_USER=root
+      - NUXT_DB_PASSWORD=sua_senha_forte
+    networks:
+      - proxy
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.id == 9kjo5azw0w66vlsrwym5csbey
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.volta.rule=Host(`volta.automaportal.com.br`)"
+      - "traefik.http.routers.volta.entrypoints=websecure"
+      - "traefik.http.routers.volta.tls=true"
+      - "traefik.http.routers.volta.tls.certresolver=myresolver"
+      - "traefik.http.routers.volta.priority=20"
+      - "traefik.http.services.volta-web-svc.loadbalancer.server.port=3000"
+
+  # --- SITE DE DESENVOLVIMENTO (DEVTOOLS ATIVO) ---
+  web-dev:
+    image: oven/bun:alpine
+    working_dir: /src
+    volumes:
+      - ./nuxt:/src
+    command: >
+      sh -c "bun install && 
+             bun x nuxi dev --host 0.0.0.0 --port 3001"
+    environment:
+      - NODE_ENV=development
+      - WATCHPACK_POLLING=true
+      # Variáveis de Banco para Desenvolvimento (Mesmo Host, Banco Diferente)
+      - NUXT_DB_HOST=db
+      - NUXT_DB_PORT=3306
+      - NUXT_DB_NAME=automaportal_dev
+      - NUXT_DB_USER=root
+      - NUXT_DB_PASSWORD=sua_senha_forte
+    networks:
+      - proxy
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.id == 9kjo5azw0w66vlsrwym5csbey
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.voltadev.rule=Host(`voltadev.automaportal.com.br`)"
+      - "traefik.http.routers.voltadev.entrypoints=websecure"
+      - "traefik.http.routers.voltadev.tls=true"
+      - "traefik.http.routers.voltadev.tls.certresolver=myresolver"
+      - "traefik.http.routers.voltadev.priority=30"
+      - "traefik.http.services.voltadev-svc.loadbalancer.server.port=3001"
+
+  # --- API ---
+  api:
+    image: oven/bun:alpine
+    working_dir: /usr/src/app 
+    volumes:
+      - ./api:/usr/src/app 
+    command: sh -c "bun install && bun index.js" 
+    networks:
+      - proxy
+    environment:
+      - DB_HOST=db
+      - DB_NAME=automaportal_prod
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.voltaApi.rule=Host(`volta.automaportal.com.br`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.voltaApi.entrypoints=websecure"
+      - "traefik.http.routers.voltaApi.service=voltaApi-svc"
+      - "traefik.http.routers.voltaApi.tls=true"
+      - "traefik.http.routers.voltaApi.tls.certresolver=myresolver"
+      - "traefik.http.routers.voltaApi.priority=70"
+      - "traefik.http.middlewares.volta-strip.stripprefix.prefixes=/api"
+      - "traefik.http.routers.voltaApi.middlewares=volta-strip"
+      - "traefik.http.services.voltaApi-svc.loadbalancer.server.port=3000"  
+    deploy:
+      placement:
+        constraints:
+          - "node.id == 9kjo5azw0w66vlsrwym5csbey"
+
+  # --- BANCO DE DADOS MARIADB ---
+  db:
+    image: mariadb:10.11
+    volumes:
+      - db_data:/var/lib/mysql
+    environment:
+      - MARIADB_ROOT_PASSWORD=sua_senha_forte
+      # Opcional: Cria apenas o banco de produção inicialmente
+      - MARIADB_DATABASE=automaportal_prod
+    networks:
+      - proxy
+    deploy:
+      placement:
+        constraints:
+          - node.id == 9kjo5azw0w66vlsrwym5csbey
+
+networks:
+  proxy:
+    external: true
+    name: proxy
+
+volumes:
+  db_data:

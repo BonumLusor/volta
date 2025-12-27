@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="./style/Style.css">
+  <link rel="stylesheet" href="https://unpkg.com/primeflex@^3/primeflex.css">
+  <script src="https://kit.fontawesome.com/ca2423a130.js" crossorigin="anonymous"></script>
+</head>
+  <body>  
+    <!-- Go back -->
+    <i id="back" class="fa-sharp fa-solid fa-arrow-left fa-lg"></i>
+
+    <!-- OPs component -->
+    <div id="OPs" class="center container">
+
+      <div class="align-items-center justify-content-center header w-10 border-round" style="position: absolute; top: 50%; transform: translate(0, -50%)">
+        <li id="OPselector" class="appearance-none list-none text-center shadow-2 ">
+          <ul class="font-bold grid align-items-center" style="height: 3rem;"> 
+            <div class="col">Nome</div>
+            <div class="col">Código</div> 
+            <div class="col">Número de OP</div>
+          </ul>
+        </li>
+      </div>  
+
+    </div>
+
+    <!-- MPs component -->
+    <div id="MPs" class="center container">
+
+        <div class="w-10 choices-grid" style="position: absolute; top: 50%; transform: translate(0, -50%)">
+          <li id="MPselector" class="list-none text-center shadow-2 col"></li>
+          <li id="displayCutsButton" class="button-grid col span-1"></li>
+        </div>
+        <input class="card" type="button" value="Selected!" id="Select" >
+
+    </div>
+
+    <!-- Canvas component -->
+    <div id="CNV">
+
+      <div class="center">
+        <div>
+          <div class="border-round">
+              <span id="Info"></span>
+              <div class="card" id="ComercialDescription"></div>
+            <div class="center">
+              <div>
+                <div class="overflow-x-scroll center">
+                  <canvas id="cnv1"> Seu Browser não tem suporte a esse recurso! </canvas>
+                </div>
+                <br />
+                <div class="overflow-x-scroll center">
+                  <canvas id="cnv2" class="overflow-x-scroll">
+                    Seu Browser não tem suporte a esse recurso!
+                  </canvas>
+                </div>
+              </div>
+            </div>
+          </div>  
+          <button id="uploadModel"> Próximo </button>
+          <button id="addButton"> + </button>
+          <div id="addMenu">
+            <form id="addForm" >
+              <input type="number" name="x" placeholder="Comprimento">
+              <input type="number" name="y" placeholder="Largura">
+              <input type="number" name="qtd" placeholder="Quantidade">
+              <input type="submit" value="Adicionar">
+            </form>
+          </div>
+          <div id="context-menu">          
+                <div class="option" id="rotate"> Girar 90° </div>
+                <div class="option" id="remove"> Remover </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+
+  </body>
+  <script>var exports = {};</script>
+  <script src="JS/Index.js"></script>
+</html> 
+
+

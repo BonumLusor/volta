@@ -1,0 +1,219 @@
+{
+  "OPs": [
+    {
+      "id": 1,
+      "materiaPrimaCode": "CHP2345556",
+      "materiaPrimaName": "Chapa Aço 1,0mm espessura",
+      "materiaPrimaNumOp": 8
+    },
+    {
+      "id": 2,
+      "materiaPrimaCode": "CHP2345521",
+      "materiaPrimaName": "Chapa PVC 2,0mm espessura Marrom",
+      "materiaPrimaNumOp": 3
+    },
+    {
+      "id": 3,
+      "materiaPrimaCode": "CHP2345578",
+      "materiaPrimaName": "Chapa PVC 3,0mm espessura Marrom",
+      "materiaPrimaNumOp": 1  
+    }
+  ],
+  "MPs": [
+    {
+      "id": 1,
+      "data": "CHP2345521",
+      "comercialDescription": "Chapa PVC 2,0mm espessura Marrom",
+      "mpCompr": 2000,
+      "mpLarg": 1200,
+      "mpLote": 25878,
+      "mpEmbalagem": "sdffff",
+      "mpCondicao": "novo",
+      "mpStatus": "Disponível",
+      "mpCortes": 0
+    },
+    {
+      "id": 2,
+      "data": "CHP2345556",
+      "comercialDescription": "Chapa Aço 1,0mm espessura",
+      "mpCompr": 2600,
+      "mpLarg": 1300,
+      "mpLote": 25878,
+      "mpEmbalagem": "sdfaaf",
+      "mpCondicao": "novo",
+      "mpStatus": "Disponível",
+      "mpCortes": 0
+    },
+    {
+      "id": 3,
+      "data": "CHP2345578",
+      "comercialDescription": "Chapa PVC 3,0mm espessura Marrom",
+      "mpCompr": 60000,
+      "mpLarg": 1200,
+      "mpLote": 23278,
+      "mpEmbalagem": "sdhfbb",
+      "mpCondicao": "novo",
+      "mpStatus": "Disponível",
+      "mpCortes": 0
+    },
+    {
+      "id": 4,
+      "data": "CHP2345521",
+      "comercialDescription": "Chapa PVC 2,0mm espessura Marrom",
+      "mpCompr": 2000,
+      "mpLarg": 1200,
+      "mpLote": 25878,
+      "mpEmbalagem": "sdfdsf",
+      "mpCondicao": "novo",
+      "mpStatus": "Disponível",
+      "mpCortes": 0
+    },
+    {
+      "id": 5,
+      "data": "CHP2345521",
+      "comercialDescription": "Chapa PVC 2,0mm espessura Marrom",
+      "mpCompr": 2000,
+      "mpLarg": 1200,
+      "mpLote": 25878,
+      "mpEmbalagem": "sdfcff",
+      "mpCondicao": "usada",
+      "mpStatus": "Disponível",
+      "mpCortes": 73840
+    },
+    {
+      "id": 6,
+      "data": "CHP2345556",
+      "comercialDescription": "Chapa Aço 1,0mm espessura",
+      "mpCompr": 3400,
+      "mpLarg": 1300,
+      "mpLote": 25878,
+      "mpEmbalagem": "sdfahf",
+      "mpCondicao": "novo",
+      "mpStatus": "Disponível",
+      "mpCortes": 0
+    },
+    {
+      "id": 7,
+      "data": "CHP2345556",
+      "comercialDescription": "Chapa Aço 1,0mm espessura",
+      "mpCompr": 8000,
+      "mpLarg": 1600,
+      "mpLote": 25878,
+      "mpEmbalagem": "sdraaf",
+      "mpCondicao": "novo",
+      "mpStatus": "Disponível",
+      "mpCortes": 0
+    },
+    {
+      "id": 8,
+      "data": "CHP2345578",
+      "comercialDescription": "Chapa PVC 3,0mm espessura Marrom",
+      "mpCompr": 60000,
+      "mpLarg": 1200,
+      "mpLote": 23278,
+      "mpEmbalagem": "sdffkb",
+      "mpCondicao": "novo",
+      "mpStatus": "Disponível",
+      "mpCortes": 0
+    },
+    {
+      "id": 9,
+      "data": "CHP2345578",
+      "comercialDescription": "Chapa PVC 3,0mm espessura Marrom",
+      "mpCompr": 7000,
+      "mpLarg": 1500,
+      "mpLote": 23278,
+      "mpEmbalagem": "sdfhbb",
+      "mpCondicao": "novo",
+      "mpStatus": "Disponível",
+      "mpCortes": 0
+    }
+  ],
+  "blank": [
+    {
+      "id": 1,
+      "blkCompr": 200,
+      "blkLarg": 300,
+      "blkQtd": 5,
+      "blkOp": "8"
+    },
+    {
+      "id": 2,
+      "blkCompr": 100,
+      "blkLarg": 650,
+      "blkQtd": 2,
+      "blkOp": "8"
+    },
+    {
+      "id": 3,
+      "blkCompr": 50,
+      "blkLarg": 100,
+      "blkQtd": 1,
+      "blkOp": "8"
+    },
+    {
+      "id": 4,
+      "blkCompr": 340,
+      "blkLarg": 620,
+      "blkQtd": 3,
+      "blkOp": "3"
+    },
+    {
+      "id": 5,
+      "blkCompr": 200,
+      "blkLarg": 650,
+      "blkQtd": 1,
+      "blkOp": "3"
+    },
+    {
+      "id": 6,
+      "blkCompr": 210,
+      "blkLarg": 740,
+      "blkQtd": 4,
+      "blkOp": "3"
+    },
+    {
+      "id": 7,
+      "blkCompr": 130,
+      "blkLarg": 570,
+      "blkQtd": 7,
+      "blkOp": "1"
+    },
+    {
+      "id": 5,
+      "blkCompr": 200,
+      "blkLarg": 400,
+      "blkQtd": 1,
+      "blkOp": "1"
+    },
+    {
+      "id": 6,
+      "blkCompr": 30,
+      "blkLarg": 80,
+      "blkQtd": 1,
+      "blkOp": "1"
+    }
+  ],
+  "ModelCuts": [
+    
+  ],
+
+  "cortes": [
+    {
+      "id": 1,
+      "px": 0,
+      "py": 0,
+      "tx": 500,
+      "ty": 1200,
+      "code": 73840
+    },
+    {
+      "id": 1,
+      "px": 500,
+      "py": 0,
+      "tx": 500,
+      "ty": 600,
+      "code": 73840
+    }
+  ]
+}
