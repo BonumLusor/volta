@@ -4,4 +4,4 @@ node-moodules/
 .vscode/
 .idea/
 *.log
-dist/
+dist/ 
