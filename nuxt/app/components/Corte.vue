@@ -1,112 +1,139 @@
 <template>
-  <div class="app-container">
-    <header class="header-controls">
-      <div class="tabs-container">
-        <button 
-          v-for="(rolo, index) in materiais" 
-          :key="index"
-          class="tab-button"
-          :class="{ active: currentRollIndex === index }"
-          @click="currentRollIndex = index"
-        >
-          Rolo {{ index + 1 }} 
-          <span class="tab-dim">({{ rolo.largura }}x{{ rolo.comprimento }})</span>
-        </button>
-      </div>
-      <div class="actions">
-        <button class="add-btn" @click="addRectangle">Adicionar Corte</button>
-      </div>
-    </header>
-    
-    <main class="main-layout">
-      <div 
-        class="canvas-area"
-        ref="scrollContainer"
-        @scroll="handleScroll"
-      >
-        <div 
-          class="canvas-wrapper"
-          :style="{ 
-            width: (displaySize.width + 2) + 'px',
-            height: (displaySize.height) + 'px'
-          }"
-        >
-          <div v-if="scrollTop > 5" class="wavy-edge top"></div>
-
-          <canvas
-            ref="canvasRef"
-            @mousedown="handleMouseDown"
-            @mousemove="handleMouseMove"
-            @mouseup="handleMouseUp"
-            @mouseleave="handleMouseUp"
-          ></canvas>
-
-          <div v-if="!isAtBottom" class="wavy-edge bottom"></div>
+  <div class="erp-container">
+    <div class="erp-content">
+      <!-- Seção de Abas de Rolos -->
+      <div class="tabs-section">
+        <div class="tabs-navigation">
+          <button 
+            v-for="(rolo, index) in materiais" 
+            :key="index"
+            class="erp-tab"
+            :class="{ active: currentRollIndex === index }"
+            @click="currentRollIndex = index"
+          >
+            ROLO {{ index + 1 }} ({{ rolo.largura }}x{{ rolo.comprimento }})
+          </button>
+        </div>
+        <div class="tabs-actions">
+          <button class="btn-primary" @click="addRectangle">ADICIONAR CORTE</button>
         </div>
       </div>
 
-      <!-- Painel Lateral -->
-      <aside class="side-panel">
-        <div class="panel-section">
-          <h2>Propriedades</h2>
+      <div class="main-grid">
+        <!-- Área do Canvas (Lado Esquerdo/Central) -->
+        <section class="canvas-section card">
+          <div class="card-header">
+            <h2 class="card-title">Visualização do Rolo</h2>
+            <div class="card-tools">
+              <span class="icon-tool">✏️</span>
+              <span class="icon-tool">📎</span>
+            </div>
+          </div>
           
-          <div v-if="selectedIndex !== -1" class="properties">
-            <div class="property-info">
-              <strong>OP #{{ rectangles[selectedIndex]?.op }}</strong>
-              <span>Rolo: {{ rectangles[selectedIndex]?.roloId + 1 }}</span>
-            </div>
-
-            <div class="property-grid">
-              <div class="field">
-                <label>X (mm)</label>
-                <input type="number" v-model.number="editValues.x" @input="updateRectangle" />
-              </div>
-              <div class="field">
-                <label>Y (mm)</label>
-                <input type="number" v-model.number="editValues.y" @input="updateRectangle" />
-              </div>
-              <div class="field">
-                <label>Largura</label>
-                <input type="number" v-model.number="editValues.width" @input="updateRectangle" />
-              </div>
-              <div class="field">
-                <label>Altura</label>
-                <input type="number" v-model.number="editValues.height" @input="updateRectangle" />
-              </div>
-            </div>
-
-            <div class="action-buttons">
-              <button @click="deleteRectangle" class="delete-btn">Excluir</button>
-              <button @click="deselectRectangle" class="deselect-btn">Fechar</button>
-            </div>
-          </div>
-
-          <div v-else class="no-selection">
-            <p>Selecione um corte para editar</p>
-          </div>
-        </div>
-
-        <div class="panel-section list-section">
-          <h3>Cortes neste Rolo</h3>
-          <div class="list-items">
-            <div
-              v-for="(rect, index) in rectangles"
-              :key="index"
-              v-show="rect.roloId === currentRollIndex"
-              class="list-item"
-              :class="{ active: selectedIndex === index }"
-              @click="selectRectangle(index)"
+          <div 
+            class="canvas-viewport"
+            ref="scrollContainer"
+            @scroll="handleScroll"
+          >
+            <div 
+              class="canvas-container"
+              :style="{ 
+                width: (displaySize.width + 2) + 'px',
+                height: (displaySize.height) + 'px'
+              }"
             >
-              <div class="item-header">
-                <span>OP {{ rect.op }}</span>
-                <span class="item-size">{{ rect.width }}x{{ rect.height }}</span>
-              </div>
-              <small>Pos: {{ rect.x.toFixed(0) }}, {{ rect.y.toFixed(0) }}</small>
+              <div v-if="scrollTop > 5" class="wavy-edge top"></div>
+              <canvas
+                ref="canvasRef"
+                @mousedown="handleMouseDown"
+                @mousemove="handleMouseMove"
+                @mouseup="handleMouseUp"
+                @mouseleave="handleMouseUp"
+              ></canvas>
+              <div v-if="!isAtBottom" class="wavy-edge bottom"></div>
             </div>
           </div>
-        </div>
-      </aside>
-    </main>
+        </section>
+
+        <!-- Painel de Propriedades e Lista (Lado Direito) -->
+        <aside class="side-panel">
+          <!-- Card de Propriedades -->
+          <div class="card properties-card">
+            <div class="card-header">
+              <h2 class="card-title">Propriedades do Corte</h2>
+            </div>
+            <div class="card-body">
+              <div v-if="selectedIndex !== -1" class="property-form">
+                <div class="op-badge">OP #{{ rectangles[selectedIndex]?.op }}</div>
+                
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label>X (mm)</label>
+                    <input type="number" v-model.number="editValues.x" @input="updateRectangle" class="erp-input" />
+                  </div>
+                  <div class="form-group">
+                    <label>Y (mm)</label>
+                    <input type="number" v-model.number="editValues.y" @input="updateRectangle" class="erp-input" />
+                  </div>
+                  <div class="form-group">
+                    <label>Largura</label>
+                    <input type="number" v-model.number="editValues.width" @input="updateRectangle" class="erp-input" />
+                  </div>
+                  <div class="form-group">
+                    <label>Altura</label>
+                    <input type="number" v-model.number="editValues.height" @input="updateRectangle" class="erp-input" />
+                  </div>
+                </div>
+
+                <div class="form-actions">
+                  <button @click="deleteRectangle" class="btn-danger">EXCLUIR</button>
+                  <button @click="deselectRectangle" class="btn-secondary">FECHAR</button>
+                </div>
+              </div>
+              <div v-else class="empty-state">
+                <p>Selecione um corte no visualizador para editar suas propriedades.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card de Lista de Cortes -->
+          <div class="card list-card">
+            <div class="card-header">
+              <h2 class="card-title">Cortes no Rolo Atual</h2>
+              <span class="count-badge">{{ rectangles.filter(r => r.roloId === currentRollIndex).length }}</span>
+            </div>
+            <div class="card-body no-padding">
+              <table class="erp-table">
+                <thead>
+                  <tr>
+                    <th>OP</th>
+                    <th>Dimensões</th>
+                    <th>Posição</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr 
+                    v-for="(rect, index) in rectangles" 
+                    :key="index"
+                    v-show="rect.roloId === currentRollIndex"
+                    :class="{ selected: selectedIndex === index }"
+                    @click="selectRectangle(index)"
+                  >
+                    <td><strong>{{ rect.op }}</strong></td>
+                    <td>{{ rect.width }} x {{ rect.height }}</td>
+                    <td>{{ rect.x.toFixed(0) }}, {{ rect.y.toFixed(0) }}</td>
+                    <td>
+                      <button class="icon-btn delete" @click.stop="deleteRectangleAtIndex(index)">🗑️</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -141,7 +168,7 @@ const rectangles = ref<Rectangle[]>([])
 const currentRollIndex = ref(0)
 
 const MAX_DISPLAY_DIM = 1000
-const snapThreshold = 15 // Snap em unidades reais
+const snapThreshold = 15
 
 let draggingIndex = -1
 let offsetX = 0
@@ -153,7 +180,6 @@ const editValues = ref({ x: 0, y: 0, width: 0, height: 0, color: '', roloId: 0 }
 const scrollTop = ref(0)
 const isAtBottom = ref(false)
 
-// Cálculo de Escala
 const currentRoll = computed(() => materiais.value[currentRollIndex.value])
 
 const scaleFactor = computed(() => {
@@ -223,7 +249,6 @@ function draw() {
   const s = scaleFactor.value
   ctx.clearRect(0, 0, canvasRef.value.width, canvasRef.value.height)
 
-  // Grid escalado
   ctx.strokeStyle = '#e5e7eb'
   ctx.lineWidth = 1
   for (let i = 0; i < currentRoll.value.comprimento; i += 100) {
@@ -236,7 +261,6 @@ function draw() {
   rectangles.value.forEach((rect, index) => {
     if (rect.roloId !== currentRollIndex.value) return
 
-    // Coordenadas exibidas (escaladas)
     const dx = rect.x * s
     const dy = rect.y * s
     const dw = rect.width * s
@@ -248,7 +272,7 @@ function draw() {
     ctx.globalAlpha = 1.0
     
     const isSelected = selectedIndex.value === index
-    ctx.strokeStyle = isSelected ? '#fbbf24' : '#1f2937'
+    ctx.strokeStyle = isSelected ? '#f37021' : '#1f2937'
     ctx.lineWidth = isSelected ? 3 : 1
     ctx.strokeRect(dx, dy, dw, dh)
     
@@ -260,10 +284,8 @@ function draw() {
 
 function handleMouseDown(e: MouseEvent) {
   if (!canvasRef.value) return
-  
   const canvasRect = canvasRef.value.getBoundingClientRect()
   const s = scaleFactor.value
-  // Converte mouse para unidades REAIS
   const mouseX = (e.clientX - canvasRect.left) / s
   const mouseY = (e.clientY - canvasRect.top) / s
   
@@ -286,7 +308,6 @@ function handleMouseDown(e: MouseEvent) {
 
 function handleMouseMove(e: MouseEvent) {
   if (draggingIndex === -1 || !canvasRef.value || !currentRoll.value) return
-  
   const canvasRect = canvasRef.value.getBoundingClientRect()
   const s = scaleFactor.value
   const mouseX = (e.clientX - canvasRect.left) / s
@@ -298,13 +319,11 @@ function handleMouseMove(e: MouseEvent) {
   const draggedRect = rectangles.value[draggingIndex]
   const { largura, comprimento } = currentRoll.value
 
-  // Snap paredes (em unidades reais)
   if (Math.abs(newX) < snapThreshold) newX = 0
   if (Math.abs(newY) < snapThreshold) newY = 0
   if (Math.abs(newX + draggedRect.width - largura) < snapThreshold) newX = largura - draggedRect.width
   if (Math.abs(newY + draggedRect.height - comprimento) < snapThreshold) newY = comprimento - draggedRect.height
   
-  // Snap outros objetos
   rectangles.value.forEach((other, index) => {
     if (index === draggingIndex || other.roloId !== currentRollIndex.value) return
     if (Math.abs(newX - (other.x + other.width)) < snapThreshold &&
@@ -316,257 +335,391 @@ function handleMouseMove(e: MouseEvent) {
     if (Math.abs(newY + draggedRect.height - other.y) < snapThreshold &&
         !(newX + draggedRect.width < other.x || newX > other.x + other.width)) newY = other.y - draggedRect.height
   })
-  
+
   newX = Math.max(0, Math.min(newX, largura - draggedRect.width))
   newY = Math.max(0, Math.min(newY, comprimento - draggedRect.height))
-  
+
   rectangles.value[draggingIndex].x = newX
   rectangles.value[draggingIndex].y = newY
   
-  if (selectedIndex.value === draggingIndex) {
-    editValues.value.x = newX
-    editValues.value.y = newY
-  }
+  editValues.value.x = Math.round(newX)
+  editValues.value.y = Math.round(newY)
   
   draw()
 }
 
 function handleMouseUp() {
   draggingIndex = -1
-  draw()
-}
-
-function addRectangle() {
-  if (!currentRoll.value) return
-  rectangles.value.push({
-    x: 0, y: 0, width: 200, height: 200,
-    color: '#6366f1',
-    op: Math.floor(Math.random() * 9000) + 1000,
-    roloId: currentRollIndex.value
-  })
-  selectedIndex.value = rectangles.value.length - 1
-  draw()
 }
 
 function updateRectangle() {
-  if (selectedIndex.value === -1 || !currentRoll.value) return
-  const { largura, comprimento } = currentRoll.value
+  if (selectedIndex.value !== -1) {
+    const r = rectangles.value[selectedIndex.value]
+    r.x = editValues.value.x
+    r.y = editValues.value.y
+    r.width = editValues.value.width
+    r.height = editValues.value.height
+    draw()
+  }
+}
 
-  editValues.value.x = Math.max(0, Math.min(editValues.value.x, largura - editValues.value.width))
-  editValues.value.y = Math.max(0, Math.min(editValues.value.y, comprimento - editValues.value.height))
-  
-  rectangles.value[selectedIndex.value] = { ...editValues.value }
+function deleteRectangle() {
+  if (selectedIndex.value !== -1) {
+    rectangles.value.splice(selectedIndex.value, 1)
+    selectedIndex.value = -1
+    draw()
+  }
+}
+
+function deleteRectangleAtIndex(index: number) {
+  rectangles.value.splice(index, 1)
+  if (selectedIndex.value === index) selectedIndex.value = -1
+  draw()
+}
+
+function deselectRectangle() {
+  selectedIndex.value = -1
   draw()
 }
 
 function selectRectangle(index: number) {
   selectedIndex.value = index
-  currentRollIndex.value = rectangles.value[index].roloId
+  draw()
 }
 
-function deselectRectangle() {
-  selectedIndex.value = -1
-}
-
-function deleteRectangle() {
-  if (selectedIndex.value === -1) return
-  rectangles.value.splice(selectedIndex.value, 1)
-  selectedIndex.value = -1
+function addRectangle() {
+  const newRect: Rectangle = {
+    x: 0,
+    y: 0,
+    width: 200,
+    height: 200,
+    color: '#3b82f6',
+    op: Math.floor(Math.random() * 9000) + 1000,
+    roloId: currentRollIndex.value
+  }
+  rectangles.value.push(newRect)
+  selectedIndex.value = rectangles.value.length - 1
   draw()
 }
 </script>
 
 <style scoped>
-.app-container {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  width: 100vw;
-  overflow: hidden; /* Remove scroll da página */
-  background-color: #f9fafb;
-  color: #111827;
-  font-family: system-ui, -apple-system, sans-serif;
+.erp-container {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
 }
 
-.header-controls {
-  background: #ffffff;
-  padding: 0 20px;
-  height: 64px;
+.erp-header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid #e5e7eb;
-  flex-shrink: 0;
+  align-items: center;
+  padding: 15px 25px;
+  background: white;
+  border-bottom: 1px solid #e0e0e0;
 }
 
-.tabs-container {
+.header-left {
   display: flex;
-  gap: 4px;
-  height: 100%;
-  align-items: flex-end;
+  align-items: center;
+  gap: 15px;
 }
 
-.tab-button {
+.page-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0;
+  color: #1a1a1a;
+}
+
+.star-icon {
+  color: #ffc107;
+  font-size: 1.2rem;
+}
+
+.status-badge {
+  font-size: 0.85rem;
+}
+
+.status-label {
+  color: #666;
+  margin-right: 5px;
+}
+
+.status-value.active {
+  color: #28a745;
+  font-weight: 600;
+}
+
+.erp-content {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Tabs */
+.tabs-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.tabs-navigation {
+  display: flex;
+  gap: 5px;
+}
+
+.erp-tab {
   padding: 10px 20px;
-  border: 1px solid transparent;
-  border-bottom: none;
+  border: none;
   background: transparent;
-  color: #6b7280;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #666;
   cursor: pointer;
-  border-radius: 8px 8px 0 0;
-  font-weight: 500;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+  text-transform: uppercase;
+}
+
+.erp-tab.active {
+  color: #f37021;
+  border-bottom-color: #f37021;
+}
+
+/* Grid Layout */
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 20px;
+}
+
+/* Cards */
+.card {
+  background: white;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  transition: all 0.2s;
 }
 
-.tab-button:hover {
-  background: #f3f4f6;
-  color: #111827;
-}
-
-.tab-button.active {
-  background: #fff;
-  border-color: #e5e7eb;
-  color: #2563eb;
-  position: relative;
-  z-index: 2;
-  margin-bottom: -1px;
-  box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
-}
-
-.tab-dim {
-  font-size: 10px;
-  opacity: 0.7;
-}
-
-.add-btn {
-  background-color: #2563eb;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.main-layout {
+.card-header {
+  padding: 12px 15px;
+  border-bottom: 1px solid #f0f0f0;
   display: flex;
-  flex: 1;
-  overflow: hidden; /* Garante que apenas áreas internas rolem */
+  justify-content: space-between;
+  align-items: center;
 }
 
-.canvas-area {
+.card-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin: 0;
+  text-transform: uppercase;
+  color: #444;
+}
+
+.card-body {
+  padding: 15px;
+}
+
+.card-body.no-padding {
+  padding: 0;
+}
+
+/* Canvas Area */
+.canvas-section {
+  min-height: 600px;
+}
+
+.canvas-viewport {
   flex: 1;
   overflow: auto;
+  background-color: #f0f0f0;
   padding: 40px;
   display: flex;
   justify-content: center;
-  background-color: #f3f4f6;
-  position: relative;
 }
 
-.canvas-wrapper {
+.canvas-container {
   position: relative;
-  background-color: white;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  background: white;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 }
 
 canvas {
   display: block;
-  border-left: 1px solid #000;
-  border-right: 1px solid #000;
+  cursor: crosshair;
 }
 
-.wavy-edge {
-  position: sticky;
-  left: 0;
-  width: 100%;
-  height: 30px;
-  z-index: 5;
-  background: repeating-linear-gradient(45deg, #000, #000 1px, #fff 1px, #fff 8px);
-  --mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 50' preserveAspectRatio='none'%3E%3Cpath d='M0,50 L0,20 Q200,0 400,20 T800,20 L800,50 Z' /%3E%3C/svg%3E");
-  -webkit-mask-image: var(--mask);
-  mask-image: var(--mask);
-  -webkit-mask-size: 100% 100%;
-}
-
-.wavy-edge.top { top: 0; transform: rotate(180deg); }
-.wavy-edge.bottom { bottom: 0; }
-
-.side-panel {
-  width: 320px;
-  background: white;
-  border-left: 1px solid #e5e7eb;
+/* Form & Inputs */
+.property-form {
   display: flex;
   flex-direction: column;
-  flex-shrink: 0;
+  gap: 15px;
 }
 
-.panel-section {
-  padding: 20px;
-  border-bottom: 1px solid #f3f4f6;
-}
-
-.list-section {
-  flex: 1;
-  overflow-y: auto;
-}
-
-h2 { font-size: 16px; margin: 0 0 15px 0; color: #374151; }
-h3 { font-size: 14px; margin-bottom: 12px; color: #6b7280; }
-
-.property-info { margin-bottom: 15px; display: flex; flex-direction: column; }
-.property-info span { font-size: 12px; color: #6b7280; }
-
-.property-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-.field { display: flex; flex-direction: column; gap: 4px; }
-.field label { font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase; }
-.field input {
+.op-badge {
+  background: #f8f9fa;
   padding: 8px;
-  border: 1px solid #d1d5db;
   border-radius: 4px;
-  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+  border: 1px solid #e0e0e0;
 }
 
-.action-buttons {
-  margin-top: 20px;
+.form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
 }
 
-.delete-btn { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
-.deselect-btn { background: #f3f4f6; color: #4b5563; border: 1px solid #e5e7eb; }
-
-.list-items { display: flex; flex-direction: column; gap: 8px; }
-.list-item {
-  padding: 12px;
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s;
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 
-.list-item:hover { border-color: #2563eb; }
-.list-item.active { background: #eff6ff; border-color: #2563eb; border-width: 2px; }
+.form-group label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #777;
+}
 
-.item-header { display: flex; justify-content: space-between; align-items: center; }
-.item-size { font-size: 11px; background: #e5e7eb; padding: 2px 6px; border-radius: 4px; }
-.list-item small { color: #9ca3af; font-size: 11px; }
+.erp-input {
+  padding: 8px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
 
-.no-selection {
+.erp-input:focus {
+  outline: none;
+  border-color: #f37021;
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: #001f3f;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.btn-secondary {
+  background-color: #f8f9fa;
+  color: #333;
+  border: 1px solid #ced4da;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+/* Table */
+.erp-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.erp-table th {
+  background: #f8f9fa;
+  text-align: left;
+  padding: 10px;
+  border-bottom: 2px solid #dee2e6;
+  color: #666;
+}
+
+.erp-table td {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.erp-table tr:hover {
+  background-color: #fcfcfc;
+  cursor: pointer;
+}
+
+.erp-table tr.selected {
+  background-color: #fff4ed;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.count-badge {
+  background: #f37021;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.empty-state {
   text-align: center;
-  padding: 40px 0;
-  color: #9ca3af;
-  font-style: italic;
-  font-size: 14px;
+  color: #999;
+  padding: 40px 20px;
+  font-size: 0.9rem;
+}
+
+/* Wavy Edges */
+.wavy-edge {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 10px;
+  background-image: radial-gradient(circle at 10px -5px, transparent 12px, #f0f0f0 13px);
+  background-size: 20px 20px;
+  z-index: 10;
+}
+
+.wavy-edge.top {
+  top: 0;
+}
+
+.wavy-edge.bottom {
+  bottom: 0;
+  transform: rotate(180deg);
+}
+
+@media (max-width: 1024px) {
+  .main-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .side-panel {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
 }
 </style>
