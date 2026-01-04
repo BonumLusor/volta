@@ -6,7 +6,7 @@
 /// <reference types="nuxt" />
 /// <reference types="../node_modules/@nuxt/vite-builder/dist/index.mjs" />
 /// <reference types="/src/node_modules/@nuxt/nitro-server/dist/index.mjs" />
-/// <reference path="types/middleware.d.ts" />
+/// <reference path="types/nitro-middleware.d.ts" />
 /// <reference path="schema/nuxt.schema.d.ts" />
 
 export {}

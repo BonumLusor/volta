@@ -1,6 +1,7 @@
 import { mergeProps, useSSRContext } from 'vue';
 import { ssrRenderAttrs, ssrInterpolate } from 'vue/server-renderer';
-import { _ as _export_sfc, d as useHead } from './server.mjs';
+import { _ as _export_sfc } from './server.mjs';
+import { u as useHead } from './composables-DKIkrSLM.mjs';
 import '../nitro/nitro.mjs';
 import 'node:http';
 import 'node:https';
@@ -15,6 +16,7 @@ import 'vue-bundle-renderer/runtime';
 import 'unhead/server';
 import 'devalue';
 import 'unhead/utils';
+import 'vue-router';
 
 const _sfc_main = {
   __name: "error-500",
@@ -70,4 +72,4 @@ _sfc_main.setup = (props, ctx) => {
 const error500 = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-8851f357"]]);
 
 export { error500 as default };
-//# sourceMappingURL=error-500-uhwyc2jg.mjs.map
+//# sourceMappingURL=error-500-BE6E3E6x.mjs.map
