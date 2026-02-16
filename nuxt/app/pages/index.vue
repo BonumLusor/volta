@@ -1,67 +1,95 @@
 <template>
-  <div class="seletor-container">
-    <header class="header">
-      <div class="title-group">
-        <h1>Configuração de Lote de Corte</h1>
-        <p>Selecione as matérias-primas e as ordens de produção para o plano.</p>
+  <div class="erp-container">
+    <div class="erp-content">
+      <header class="erp-header">
+        <div class="title-group">
+          <h1 class="erp-title">Configuração de Lote de Corte</h1>
+          <p class="erp-subtitle">Selecione as matérias-primas e as ordens de produção para o plano.</p>
+        </div>
+        
+        <button 
+          class="btn-primary" 
+          :disabled="!podeConfirmar"
+          @click="confirmarEIrParaCorte"
+        >
+          CONFIRMAR E GERAR PLANO ({{ resumoSelecao }})
+        </button>
+      </header>
+
+      <div class="main-grid">
+        <!-- Coluna de Rolos -->
+        <section class="column card">
+          <div class="card-header">
+            <h2 class="card-title">1. Materiais (Rolos)</h2>
+            <span class="count-badge">{{ rolosSelecionados.length }}</span>
+          </div>
+          <div class="card-body no-padding scroll-area">
+            <table class="erp-table">
+              <thead>
+                <tr>
+                  <th>Seleção</th>
+                  <th>Material</th>
+                  <th>Dimensões</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr 
+                  v-for="rolo in listaRolos" 
+                  :key="rolo.id"
+                  :class="{ selected: rolosSelecionados.find(r => r.id === rolo.id) }"
+                  @click="toggleRolo(rolo)"
+                >
+                  <td class="text-center">
+                    <input type="checkbox" :checked="!!rolosSelecionados.find(r => r.id === rolo.id)" @click.stop />
+                  </td>
+                  <td><strong>{{ rolo.nome }}</strong></td>
+                  <td>{{ rolo.largura }} x {{ rolo.comprimento }} mm</td>
+                  <td>
+                    <span v-if="rolo.cortesExistentes.length > 0" class="status-tag occupied">Cortado</span>
+                    <span v-else class="status-tag available">Novo</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Coluna de OPs -->
+        <section class="column card">
+          <div class="card-header">
+            <h2 class="card-title">2. Ordens de Produção (OPs)</h2>
+            <span class="count-badge">{{ opsSelecionadas.length }}</span>
+          </div>
+          <div class="card-body no-padding scroll-area">
+            <table class="erp-table">
+              <thead>
+                <tr>
+                  <th>Seleção</th>
+                  <th>OP</th>
+                  <th>Cliente</th>
+                  <th>Cortes</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr 
+                  v-for="op in opsDisponiveis" 
+                  :key="op.id"
+                  :class="{ selected: opsSelecionadas.find(o => o.id === op.id) }"
+                  @click="toggleOP(op)"
+                >
+                  <td class="text-center">
+                    <input type="checkbox" :checked="!!opsSelecionadas.find(o => o.id === op.id)" @click.stop />
+                  </td>
+                  <td><strong>#{{ op.id }}</strong></td>
+                  <td>{{ op.cliente }}</td>
+                  <td>{{ op.cortes.length }} itens</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
       </div>
-      
-      <button 
-        class="btn-confirm" 
-        :disabled="!podeConfirmar"
-        @click="confirmarEIrParaCorte"
-      >
-        Confirmar e Gerar Plano ({{ resumoSelecao }})
-      </button>
-    </header>
-
-    <div class="grid-layout">
-      <section class="column">
-        <h2 class="column-title">1. Materiais (Rolos)</h2>
-        <div class="scroll-area">
-          <label 
-            v-for="rolo in listaRolos" 
-            :key="rolo.id" 
-            class="card-selectable"
-            :class="{ 'is-active': rolosSelecionados.find(r => r.id === rolo.id) }"
-          >
-            <input type="checkbox" :value="rolo" v-model="rolosSelecionados" class="hidden-check" />
-            <div class="card-content">
-              <span class="card-tag" v-if="rolo.cortesExistentes.length > 0">Ocupado</span>
-              <div class="card-main">
-                <span class="card-icon">🌀</span>
-                <div>
-                  <div class="card-name">{{ rolo.nome }}</div>
-                  <div class="card-sub">{{ rolo.largura }}x{{ rolo.comprimento }}mm</div>
-                </div>
-              </div>
-            </div>
-          </label>
-        </div>
-      </section>
-
-      <section class="column">
-        <h2 class="column-title">2. Ordens de Produção (OPs)</h2>
-        <div class="scroll-area">
-          <label 
-            v-for="op in opsDisponiveis" 
-            :key="op.id" 
-            class="card-selectable"
-            :class="{ 'is-active': opsSelecionadas.find(o => o.id === op.id) }"
-          >
-            <input type="checkbox" :value="op" v-model="opsSelecionadas" class="hidden-check" />
-            <div class="card-content">
-              <div class="card-main">
-                <span class="card-icon">📋</span>
-                <div>
-                  <div class="card-name">OP #{{ op.id }}</div>
-                  <div class="card-sub">{{ op.cliente }}</div>
-                </div>
-              </div>
-            </div>
-          </label>
-        </div>
-      </section>
     </div>
   </div>
 </template>
@@ -72,44 +100,92 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-// Dados Mockados
+// Dados Mockados seguindo a nova estrutura
 const listaRolos = ref([
-  { id: 'R1', nome: 'Bobina Master 1200', largura: 1200, comprimento: 5000, cortesExistentes: [{ x0: 0, x1: 200, y0: 0, y1: 100, op: 'FIXO', fixo: true }] },
-  { id: 'R2', nome: 'Retalho A', largura: 400, comprimento: 800, cortesExistentes: [] },
-  { id: 'R3', nome: 'Bobina Kraft 900', largura: 900, comprimento: 3000, cortesExistentes: [] },
+  { 
+    id: 'R1', 
+    nome: 'Bobina Master 1200', 
+    largura: 1200, 
+    comprimento: 5000, 
+    cortesExistentes: [
+      { x: 0, y: 0, width: 1200, height: 200, op: 'FIXO', color: '#94a3b8', fixed: true }
+    ] 
+  },
+  { 
+    id: 'R2', 
+    nome: 'Retalho A', 
+    largura: 400, 
+    comprimento: 800, 
+    cortesExistentes: [] 
+  },
+  { 
+    id: 'R3', 
+    nome: 'Bobina Kraft 900', 
+    largura: 900, 
+    comprimento: 3000, 
+    cortesExistentes: [
+      { x: 0, y: 0, width: 400, height: 400, op: 'FIXO', color: '#94a3b8', fixed: true }
+    ] 
+  },
 ])
 
 const opsDisponiveis = ref([
-  { id: 2134, cliente: 'Indústria Metal', material: 'Chapa A' },
-  { id: 543, cliente: 'Logística Express', material: 'Chapa A' },
-  { id: 2033, cliente: 'Tech Solutions', material: 'Chapa B' },
-  { id: 4055, cliente: 'Auto Parts Inc', material: 'Chapa B' }
+  { 
+    id: 2134, 
+    cliente: 'Indústria Metal', 
+    cortes: [
+      { width: 300, height: 400, color: '#3b82f6' },
+      { width: 200, height: 200, color: '#3b82f6' }
+    ]
+  },
+  { 
+    id: 543, 
+    cliente: 'Logística Express', 
+    cortes: [
+      { width: 500, height: 300, color: '#ef4444' }
+    ]
+  },
+  { 
+    id: 2033, 
+    cliente: 'Tech Solutions', 
+    cortes: [
+      { width: 150, height: 150, color: '#10b981' },
+      { width: 150, height: 150, color: '#10b981' },
+      { width: 150, height: 150, color: '#10b981' }
+    ]
+  }
 ])
 
 // Estados de Seleção
-const rolosSelecionados = ref([])
-const opsSelecionadas = ref([])
+const rolosSelecionados = ref<any[]>([])
+const opsSelecionadas = ref<any[]>([])
 
 // Lógica de UI
 const podeConfirmar = computed(() => rolosSelecionados.value.length > 0 && opsSelecionadas.value.length > 0)
 const resumoSelecao = computed(() => `${rolosSelecionados.value.length} Rolos, ${opsSelecionadas.value.length} OPs`)
 
+const toggleRolo = (rolo: any) => {
+  const index = rolosSelecionados.value.findIndex(r => r.id === rolo.id)
+  if (index > -1) rolosSelecionados.value.splice(index, 1)
+  else rolosSelecionados.value.push(rolo)
+}
+
+const toggleOP = (op: any) => {
+  const index = opsSelecionadas.value.findIndex(o => o.id === op.id)
+  if (index > -1) opsSelecionadas.value.splice(index, 1)
+  else opsSelecionadas.value.push(op)
+}
+
 const confirmarEIrParaCorte = () => {
-  // Consolidamos tudo para a página de corte
-  // Aqui você pode enviar os rolos e as OPs separadamente para a página de corte organizar
+  // Preparamos o payload para a página de corte
   const payload = {
     materiais: rolosSelecionados.value,
-    demandas: opsSelecionadas.value,
-    // Criamos a lista inicial de cortes baseada nos fixos dos rolos selecionados
-    listaDeCortes: [
-      ...rolosSelecionados.value.flatMap(r => r.cortesExistentes),
-      // Adicionamos as OPs sem coordenadas (para o algoritmo calcular depois) ou com default
-      ...opsSelecionadas.value.map((op, index) => ({
-        op: op.id,
-        x0: 300, x1: 500, y0: 10 * index, y1: 100 + (10 * index),
-        novo: true
-      }))
-    ]
+    ops: opsSelecionadas.value
+  }
+
+  // Salva no localStorage para garantir persistência entre páginas no Nuxt
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('planoCorte', JSON.stringify(payload))
   }
 
   router.push({
@@ -120,128 +196,163 @@ const confirmarEIrParaCorte = () => {
 </script>
 
 <style scoped>
-.seletor-container {
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  color: #333;
+.erp-container {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 20px;
 }
 
-.header {
+.erp-content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.erp-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
-  border-bottom: 2px solid #eee;
-  padding-bottom: 1.5rem;
+  margin-bottom: 20px;
+  background: white;
+  padding: 20px;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
 }
 
-.btn-confirm {
-  background: #2ecc71;
-  color: white;
-  border: none;
-  padding: 1rem 2rem;
-  border-radius: 8px;
-  font-weight: bold;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  box-shadow: 0 4px 6px rgba(46, 204, 113, 0.2);
+.erp-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #001f3f;
+  margin: 0;
 }
 
-.btn-confirm:hover:not(:disabled) {
-  background: #27ae60;
-  transform: translateY(-2px);
+.erp-subtitle {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 5px 0 0 0;
 }
 
-.btn-confirm:disabled {
-  background: #bdc3c7;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-.grid-layout {
+.main-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 2rem;
+  gap: 20px;
 }
 
-.column-title {
-  font-size: 1.2rem;
-  margin-bottom: 1rem;
-  color: #7f8c8d;
+/* Cards */
+.card {
+  background: white;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  display: flex;
+  flex-direction: column;
+}
+
+.card-header {
+  padding: 12px 15px;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin: 0;
+  text-transform: uppercase;
+  color: #444;
+}
+
+.card-body.no-padding {
+  padding: 0;
 }
 
 .scroll-area {
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-  max-height: 70vh;
+  max-height: 60vh;
   overflow-y: auto;
-  padding-right: 10px;
 }
 
-/* Custom Checkbox Cards */
-.card-selectable {
-  display: block;
+/* Table */
+.erp-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.erp-table th {
+  background: #f8f9fa;
+  text-align: left;
+  padding: 12px 15px;
+  border-bottom: 2px solid #dee2e6;
+  color: #666;
+}
+
+.erp-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.erp-table tr:hover {
+  background-color: #fcfcfc;
   cursor: pointer;
 }
 
-.hidden-check {
-  display: none;
+.erp-table tr.selected {
+  background-color: #fff4ed;
 }
 
-.card-content {
-  background: #fff;
-  border: 2px solid #e0e0e0;
+.text-center {
+  text-align: center;
+}
+
+/* Status Tags */
+.status-tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 8px;
   border-radius: 10px;
-  padding: 1.2rem;
-  transition: all 0.2s;
-  position: relative;
-}
-
-.card-selectable.is-active .card-content {
-  border-color: #3498db;
-  background: #f0f7ff;
-}
-
-.card-main {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.card-icon {
-  font-size: 1.5rem;
-  background: #f8f9fa;
-  padding: 10px;
-  border-radius: 8px;
-}
-
-.card-name {
-  font-weight: bold;
-  font-size: 1.05rem;
-}
-
-.card-sub {
-  font-size: 0.85rem;
-  color: #95a5a6;
-}
-
-.card-tag {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: #f1c40f;
-  font-size: 0.65rem;
-  font-weight: bold;
-  padding: 2px 6px;
-  border-radius: 4px;
   text-transform: uppercase;
 }
 
-/* Custom Scrollbar */
-.scroll-area::-webkit-scrollbar { width: 6px; }
-.scroll-area::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
+.status-tag.occupied {
+  background: #fee2e2;
+  color: #dc3545;
+}
+
+.status-tag.available {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: #001f3f;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 4px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.2s;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #003366;
+}
+
+.btn-primary:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.count-badge {
+  background: #f37021;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 700; 
+}
 </style>

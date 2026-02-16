@@ -1,8 +1,8 @@
-import process from 'node:process';globalThis._importMeta_=globalThis._importMeta_||{url:"file:///_entry.js",env:process.env};import { hasInjectionContext, getCurrentInstance, defineComponent, useSSRContext, createApp, ref, watch, mergeProps, provide, toRef, onErrorCaptured, onServerPrefetch, unref, createVNode, resolveDynamicComponent, shallowReactive, reactive, effectScope, shallowRef, isReadonly, isRef, isShallow, isReactive, toRaw, inject, defineAsyncComponent, getCurrentScope } from 'vue';
+import process from 'node:process';globalThis._importMeta_=globalThis._importMeta_||{url:"file:///_entry.js",env:process.env};import { hasInjectionContext, getCurrentInstance, defineComponent, ref, inject, h, Suspense, Fragment, createApp, provide, shallowReactive, toRef, onErrorCaptured, onServerPrefetch, unref, createVNode, resolveDynamicComponent, reactive, effectScope, shallowRef, isReadonly, isRef, isShallow, isReactive, toRaw, defineAsyncComponent, mergeProps, getCurrentScope, useSSRContext } from 'vue';
 import { i as hasProtocol, k as isScriptProtocol, l as joinURL, w as withQuery, s as sanitizeStatusCode, m as getContext, $ as $fetch, n as createHooks, o as executeAsync, c as createError$1, t as toRouteMatcher, p as createRouter$1, q as defu } from '../nitro/nitro.mjs';
 import { b as baseURL } from '../routes/renderer.mjs';
-import { createMemoryHistory, createRouter, START_LOCATION } from 'vue-router';
-import { ssrRenderAttrs, ssrRenderStyle, ssrInterpolate, ssrRenderAttr, ssrRenderList, ssrRenderClass, ssrRenderSuspense, ssrRenderComponent, ssrRenderVNode } from 'vue/server-renderer';
+import { RouterView, createMemoryHistory, createRouter, START_LOCATION } from 'vue-router';
+import { ssrRenderSuspense, ssrRenderComponent, ssrRenderVNode, ssrRenderAttrs } from 'vue/server-renderer';
 import 'node:http';
 import 'node:https';
 import 'node:events';
@@ -236,6 +236,7 @@ function useRuntimeConfig(_event) {
 function defineGetter(obj, key, val) {
   Object.defineProperty(obj, key, { get: () => val });
 }
+const LayoutMetaSymbol = /* @__PURE__ */ Symbol("layout-meta");
 const PageRouteSymbol = /* @__PURE__ */ Symbol("route");
 globalThis._importMeta_.url.replace(/\/app\/.*$/, "/");
 const useRouter = () => {
@@ -383,7 +384,17 @@ const _routes = [
   {
     name: "corte",
     path: "/corte",
-    component: () => import('./corte-sw7RwSAB.mjs')
+    component: () => import('./corte-DBakzsxo.mjs')
+  },
+  {
+    name: "index",
+    path: "/",
+    component: () => import('./index-DHmFiPtH.mjs')
+  },
+  {
+    name: "realizacao",
+    path: "/realizacao",
+    component: () => import('./realizacao-8o6wfBqf.mjs')
   }
 ];
 const ROUTE_KEY_PARENTHESES_RE = /(:\w+)\([^)]+\)/g;
@@ -727,46 +738,89 @@ const plugins = [
   revive_payload_server_MVtmlZaQpj6ApFmshWfUWl5PehCebzaBf2NuRMiIbms,
   components_plugin_4kY4pyzJIYX99vmMAAIorFf3CnAaptHitJgf7JxiED8
 ];
-const canvasWidth = 800;
-const canvasHeight = 600;
-const _sfc_main$2 = /* @__PURE__ */ defineComponent({
-  __name: "app",
-  __ssrInlineRender: true,
-  setup(__props) {
-    ref(null);
-    const rectangles = ref([
-      { x: 50, y: 50, width: 100, height: 80, color: "#3b82f6" },
-      { x: 200, y: 150, width: 120, height: 90, color: "#ef4444" },
-      { x: 400, y: 100, width: 80, height: 100, color: "#10b981" }
-    ]);
-    const selectedIndex = ref(-1);
-    const editValues = ref({
-      x: 0,
-      y: 0,
-      width: 0,
-      height: 0,
-      color: "#000000"
-    });
-    watch(selectedIndex, (newIndex) => {
-      if (newIndex !== -1 && rectangles.value[newIndex]) {
-        editValues.value = { ...rectangles.value[newIndex] };
-      }
-    });
-    return (_ctx, _push, _parent, _attrs) => {
-      _push(`<div${ssrRenderAttrs(mergeProps({ class: "app-wrapper" }, _attrs))} data-v-7ff6bbd1><div class="app-container" data-v-7ff6bbd1><h1 data-v-7ff6bbd1>Canvas com Retângulos Arrastáveis</h1><div class="controls" data-v-7ff6bbd1><button data-v-7ff6bbd1>Adicionar Retângulo</button><button data-v-7ff6bbd1>Resetar Canvas</button></div><canvas data-v-7ff6bbd1></canvas></div><div class="side-panel" data-v-7ff6bbd1><h2 data-v-7ff6bbd1>Propriedades do Retângulo</h2>`);
-      if (selectedIndex.value !== -1) {
-        _push(`<div class="properties" data-v-7ff6bbd1><div class="property-group" data-v-7ff6bbd1><label data-v-7ff6bbd1>Retângulo Selecionado:</label><div class="selected-indicator" data-v-7ff6bbd1><span class="color-box" style="${ssrRenderStyle({ backgroundColor: rectangles.value[selectedIndex.value].color })}" data-v-7ff6bbd1></span><span data-v-7ff6bbd1>Retângulo #${ssrInterpolate(selectedIndex.value + 1)}</span></div></div><div class="property-group" data-v-7ff6bbd1><label for="pos-x" data-v-7ff6bbd1>Posição X:</label><input id="pos-x" type="number"${ssrRenderAttr("value", editValues.value.x)} min="0"${ssrRenderAttr("max", canvasWidth - editValues.value.width)} data-v-7ff6bbd1></div><div class="property-group" data-v-7ff6bbd1><label for="pos-y" data-v-7ff6bbd1>Posição Y:</label><input id="pos-y" type="number"${ssrRenderAttr("value", editValues.value.y)} min="0"${ssrRenderAttr("max", canvasHeight - editValues.value.height)} data-v-7ff6bbd1></div><div class="property-group" data-v-7ff6bbd1><label for="width" data-v-7ff6bbd1>Largura:</label><input id="width" type="number"${ssrRenderAttr("value", editValues.value.width)} min="10"${ssrRenderAttr("max", canvasWidth - editValues.value.x)} data-v-7ff6bbd1></div><div class="property-group" data-v-7ff6bbd1><label for="height" data-v-7ff6bbd1>Altura:</label><input id="height" type="number"${ssrRenderAttr("value", editValues.value.height)} min="10"${ssrRenderAttr("max", canvasHeight - editValues.value.y)} data-v-7ff6bbd1></div><div class="property-group" data-v-7ff6bbd1><label for="color" data-v-7ff6bbd1>Cor:</label><div class="color-input-group" data-v-7ff6bbd1><input id="color" type="color"${ssrRenderAttr("value", editValues.value.color)} data-v-7ff6bbd1><input type="text"${ssrRenderAttr("value", editValues.value.color)} placeholder="#000000" class="color-text" data-v-7ff6bbd1></div></div><div class="action-buttons" data-v-7ff6bbd1><button class="delete-btn" data-v-7ff6bbd1>Excluir Retângulo</button><button class="deselect-btn" data-v-7ff6bbd1>Desselecionar</button></div></div>`);
-      } else {
-        _push(`<div class="no-selection" data-v-7ff6bbd1><p data-v-7ff6bbd1>Nenhum retângulo selecionado</p><p class="hint" data-v-7ff6bbd1>Clique em um retângulo no canvas para editar suas propriedades</p></div>`);
-      }
-      _push(`<div class="rectangles-list" data-v-7ff6bbd1><h3 data-v-7ff6bbd1>Todos os Retângulos (${ssrInterpolate(rectangles.value.length)})</h3><div class="list-items" data-v-7ff6bbd1><!--[-->`);
-      ssrRenderList(rectangles.value, (rect, index) => {
-        _push(`<div class="${ssrRenderClass([{ active: selectedIndex.value === index }, "list-item"])}" data-v-7ff6bbd1><span class="color-box" style="${ssrRenderStyle({ backgroundColor: rect.color })}" data-v-7ff6bbd1></span><span class="item-info" data-v-7ff6bbd1> Retângulo #${ssrInterpolate(index + 1)} <small data-v-7ff6bbd1>(${ssrInterpolate(Math.round(rect.x))}, ${ssrInterpolate(Math.round(rect.y))})</small></span></div>`);
+const defineRouteProvider = (name = "RouteProvider") => defineComponent({
+  name,
+  props: {
+    route: {
+      type: Object,
+      required: true
+    },
+    vnode: Object,
+    vnodeRef: Object,
+    renderKey: String,
+    trackRootNodes: Boolean
+  },
+  setup(props) {
+    const previousKey = props.renderKey;
+    const previousRoute = props.route;
+    const route = {};
+    for (const key in props.route) {
+      Object.defineProperty(route, key, {
+        get: () => previousKey === props.renderKey ? props.route[key] : previousRoute[key],
+        enumerable: true
       });
-      _push(`<!--]--></div></div></div></div>`);
+    }
+    provide(PageRouteSymbol, shallowReactive(route));
+    return () => {
+      if (!props.vnode) {
+        return props.vnode;
+      }
+      return h(props.vnode, { ref: props.vnodeRef });
     };
   }
 });
+const RouteProvider = defineRouteProvider();
+const __nuxt_component_0 = defineComponent({
+  name: "NuxtPage",
+  inheritAttrs: false,
+  props: {
+    name: {
+      type: String
+    },
+    transition: {
+      type: [Boolean, Object],
+      default: void 0
+    },
+    keepalive: {
+      type: [Boolean, Object],
+      default: void 0
+    },
+    route: {
+      type: Object
+    },
+    pageKey: {
+      type: [Function, String],
+      default: null
+    }
+  },
+  setup(props, { attrs, slots, expose }) {
+    const nuxtApp = useNuxtApp();
+    const pageRef = ref();
+    inject(PageRouteSymbol, null);
+    expose({ pageRef });
+    inject(LayoutMetaSymbol, null);
+    nuxtApp.deferHydration();
+    return () => {
+      return h(RouterView, { name: props.name, route: props.route, ...attrs }, {
+        default: (routeProps) => {
+          return h(Suspense, { suspensible: true }, {
+            default() {
+              return h(RouteProvider, {
+                vnode: slots.default ? normalizeSlot(slots.default, routeProps) : routeProps.Component,
+                route: routeProps.route,
+                vnodeRef: pageRef
+              });
+            }
+          });
+        }
+      });
+    };
+  }
+});
+function normalizeSlot(slot, data) {
+  const slotContent = slot(data);
+  return slotContent.length === 1 ? h(slotContent[0]) : h(Fragment, void 0, slotContent);
+}
 const _export_sfc = (sfc, props) => {
   const target = sfc.__vccOpts || sfc;
   for (const [key, val] of props) {
@@ -774,13 +828,20 @@ const _export_sfc = (sfc, props) => {
   }
   return target;
 };
+const _sfc_main$2 = {};
+function _sfc_ssrRender(_ctx, _push, _parent, _attrs) {
+  const _component_NuxtPage = __nuxt_component_0;
+  _push(`<div${ssrRenderAttrs(_attrs)}>`);
+  _push(ssrRenderComponent(_component_NuxtPage, null, null, _parent));
+  _push(`</div>`);
+}
 const _sfc_setup$2 = _sfc_main$2.setup;
 _sfc_main$2.setup = (props, ctx) => {
   const ssrContext = useSSRContext();
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("app.vue");
   return _sfc_setup$2 ? _sfc_setup$2(props, ctx) : void 0;
 };
-const AppComponent = /* @__PURE__ */ _export_sfc(_sfc_main$2, [["__scopeId", "data-v-7ff6bbd1"]]);
+const AppComponent = /* @__PURE__ */ _export_sfc(_sfc_main$2, [["ssrRender", _sfc_ssrRender]]);
 const _sfc_main$1 = {
   __name: "nuxt-error-page",
   __ssrInlineRender: true,
