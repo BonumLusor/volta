@@ -392,6 +392,11 @@ const _routes = [
     component: () => import('./index-DHmFiPtH.mjs')
   },
   {
+    name: "materiais",
+    path: "/materiais",
+    component: () => import('./materiais-BlurMmir.mjs')
+  },
+  {
     name: "realizacao",
     path: "/realizacao",
     component: () => import('./realizacao-8o6wfBqf.mjs')
