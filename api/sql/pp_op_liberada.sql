@@ -38,7 +38,8 @@ WITH _op AS (
 
     WHERE 
       -- OP Liberada
-      op.situacao = 10
+      1 = 1
+      -- op.situacao = 10
       -- Produto com unidade de medida em M²
       AND prod.un IN ( 'm2', 'M2', 'm²' )
 

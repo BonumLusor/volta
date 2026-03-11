@@ -36,7 +36,8 @@
                 <tr>
                   <th style="width: 40px;"></th>
                   <th>Lote</th>
-                  <th>Armazém</th>
+                  <th>Depósito</th>
+                  <th>Localização</th>
                   <th>Qtd</th>
                 </tr>
               </thead>
@@ -44,23 +45,33 @@
                 <tr 
                   v-for="item in listaSaldos" 
                   :key="item.lote" 
-                  :class="{ selected: saldosSelecionados.find(s => s.lote === item.lote) }"
+                  :class="{ 
+                    selected: saldosSelecionados.find(s => s.lote === item.lote),
+                    'row-cortado': item.nr_serie === 'CORTADO'
+                  }"
                   @click="toggleSaldo(item)"
                 >
                   <td class="text-center">
                     <input 
                       type="checkbox" 
                       :checked="!!saldosSelecionados.find(s => s.lote === item.lote)" 
-                      @click.stop 
+                      @click.stop="toggleSaldo(item)" 
                     />
                   </td>
                   <td>
-                    <strong>{{ item.lote || 'S/N' }}</strong>
-                    <div v-if="item.largura" style="font-size: 0.75rem; color: #666;">
-                      {{ item.largura }} x {{ item.comprimento }}
+                    <div class="lote-info">
+                      <strong>{{ item.lote || 'S/N' }}</strong>
+                      <!-- Badge Visual para Cortado -->
+                      <span v-if="item.nr_serie === 'CORTADO'" class="status-tag cut-badge">
+                        CORTADO
+                      </span>
+                    </div>
+                    <div v-if="item.largura" class="dimensao-info">
+                      {{ item.largura }} x {{ item.comprimento }} mm
                     </div>
                   </td>
-                  <td>{{ item.armazem || 'Geral' }}</td>
+                  <td><span class="deposito-text">{{ item.cod_deposito }}</span></td>
+                  <td>{{ item.localizacao || '-' }}</td>
                   <td>
                     <span class="status-tag available">
                       {{ item.saldo }} {{ item.un }}
@@ -68,7 +79,7 @@
                   </td>
                 </tr>
                 <tr v-if="!carregando && listaSaldos.length === 0">
-                  <td colspan="4" class="text-center" style="padding: 20px;">
+                  <td colspan="5" class="text-center" style="padding: 20px;">
                     Sem saldo.
                   </td>
                 </tr>
@@ -95,7 +106,7 @@
                   <th style="width: 40px;"></th>
                   <th>OP / Pedido</th>
                   <th>Produto / Dimensões</th>
-                  <th>Data Entrega</th>
+                  <th>Entrega</th>
                   <th>Qtd</th>
                 </tr>
               </thead>
@@ -110,7 +121,7 @@
                     <input 
                       type="checkbox" 
                       :checked="!!opsSelecionadas.find(o => o.cod_op === op.cod_op)" 
-                      @click.stop 
+                      @click.stop="toggleOp(op)" 
                     />
                   </td>
                   <td>
@@ -125,7 +136,7 @@
                       {{ op.largura_corte }} x {{ op.comprimento_corte }} mm
                     </div>
                   </td>
-                  <td>
+                  <td style="white-space: nowrap;">
                     {{ op.dt_comprometida ? new Date(op.dt_comprometida).toLocaleDateString('pt-BR') : '-' }}
                   </td>
                   <td>
@@ -134,16 +145,10 @@
                     </span>
                   </td>
                 </tr>
-                <tr v-if="!carregandoOps && listaOps.length === 0">
-                  <td colspan="5" class="text-center" style="padding: 20px;">
-                    Nenhuma OP encontrada para este material.
-                  </td>
-                </tr>
               </tbody>
             </table>
           </div>
         </section>
-
       </div>
     </div>
   </div>
@@ -165,10 +170,8 @@ const listaOps = ref<any[]>([])
 const opsSelecionadas = ref<any[]>([])
 const carregandoOps = ref(true)
 
-// Ao montar o componente
 onMounted(async () => {
   try {
-    // 1. Recupera o material salvo no localStorage
     if (typeof window !== 'undefined') {
       const savedData = localStorage.getItem('planoCorte')
       if (savedData) {
@@ -187,21 +190,24 @@ onMounted(async () => {
 
     const codProduto = materialSelecionado.value.cod_produto
 
-    // 2. Busca SALDOS em paralelo
+    // 2. Busca SALDOS
     const fetchSaldos = fetch(`https://volta.automaportal.com.br/api/mysql/eq_saldo?cod_produto=${codProduto}`)
       .then(res => res.ok ? res.json() : [])
       .then(data => {
         const rawList = Array.isArray(data) ? data : Object.values(data)
         listaSaldos.value = rawList.map((item: any) => {
           let unidadeFormatada = item.un;
-          if (unidadeFormatada && (unidadeFormatada === 'M2' || unidadeFormatada === 'm2')) {
+          if (unidadeFormatada && (unidadeFormatada.toUpperCase() === 'M2')) {
             unidadeFormatada = 'm²';
           }
           return {
             ...item,
             lote: item.cod_lote,
             saldo: item.saldo_estoque,
-            armazem: item.localizacao || `Depósito ${item.cod_deposito}`,
+            // Mantendo os nomes exatos da API conforme solicitado
+            cod_deposito: item.cod_deposito,
+            localizacao: item.localizacao,
+            nr_serie: item.nr_serie, 
             un: unidadeFormatada
           }
         })
@@ -209,14 +215,13 @@ onMounted(async () => {
       .catch(err => console.error('Erro saldos:', err))
       .finally(() => carregando.value = false)
 
-    // 3. Busca OPs em paralelo
+    // 3. Busca OPs
     const fetchOps = fetch(`https://volta.automaportal.com.br/api/pp_op_mp_do_produto?cod_produto=${codProduto}`)
       .then(res => res.ok ? res.json() : [])
       .then(data => {
         const rawOps = Array.isArray(data) ? data : Object.values(data)
         listaOps.value = rawOps.map((op: any) => ({
           ...op,
-          // Mapeamento baseado no JSON fornecido
           cod_op: op.op_cod, 
           cod_pedido: op.cod_pedido,
           produto_final: op.prod_fabricado,
@@ -237,13 +242,10 @@ onMounted(async () => {
   }
 })
 
-// Lógica de UI
 const podeConfirmar = computed(() => saldosSelecionados.value.length > 0)
 
 const resumoSelecao = computed(() => {
-  const qtdLotes = saldosSelecionados.value.length
-  const qtdOps = opsSelecionadas.value.length
-  return `${qtdLotes} Lotes, ${qtdOps} OPs`
+  return `${saldosSelecionados.value.length} Lotes, ${opsSelecionadas.value.length} OPs`
 })
 
 const toggleSaldo = (item: any) => {
@@ -264,195 +266,76 @@ const confirmarEIrParaCorte = () => {
     lotes: saldosSelecionados.value,
     ops: opsSelecionadas.value
   }
-
   if (typeof window !== 'undefined') {
     localStorage.setItem('planoCorteCompleto', JSON.stringify(payload))
   }
-
-  router.push({
-    path: '/corte',
-    state: { planoCorteCompleto: payload }
-  })
+  router.push({ path: '/corte' })
 }
 </script>
 
 <style scoped>
+/* Estilos existentes mantidos e novos adicionados abaixo */
 .erp-container {
   min-height: 100vh;
   background-color: #f5f5f5;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   padding: 20px;
 }
-
-.erp-content {
-  max-width: 1400px; /* Aumentei para caber 2 colunas */
-  margin: 0 auto;
-}
-
+.erp-content { max-width: 1400px; margin: 0 auto; }
 .erp-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  background: white;
-  padding: 20px;
-  border-radius: 4px;
-  border: 1px solid #e0e0e0;
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 20px; background: white; padding: 20px;
+  border-radius: 4px; border: 1px solid #e0e0e0;
+}
+.erp-title { font-size: 1.25rem; font-weight: 700; color: #001f3f; margin: 0; }
+.erp-subtitle { font-size: 0.9rem; color: #666; margin: 5px 0 0 0; }
+
+.main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 1024px) { .main-grid { grid-template-columns: 1fr; } }
+
+.card { background: white; border-radius: 4px; border: 1px solid #e0e0e0; display: flex; flex-direction: column; }
+.card-header { padding: 12px 15px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; }
+.card-title { font-size: 0.9rem; font-weight: 700; text-transform: uppercase; color: #444; margin: 0; }
+.scroll-area { max-height: 70vh; overflow-y: auto; }
+
+.erp-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.erp-table th { 
+  background: #f8f9fa; padding: 12px 15px; text-align: left; 
+  color: #666; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid #dee2e6;
+}
+.erp-table td { padding: 12px 15px; border-bottom: 1px solid #eee; }
+.erp-table tr:hover { background-color: #fcfcfc; cursor: pointer; }
+.erp-table tr.selected { background-color: #fff4ed; }
+
+/* Destaque para linha de produto cortado (opcional) */
+.row-cortado {
+  border-left: 4px solid #f37021;
 }
 
-.erp-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #001f3f;
-  margin: 0;
-}
+.lote-info { display: flex; align-items: center; gap: 8px; }
+.dimensao-info { font-size: 0.75rem; color: #888; margin-top: 2px; }
+.deposito-text { font-weight: 600; color: #555; }
 
-.erp-subtitle {
-  font-size: 0.9rem;
-  color: #666;
-  margin: 5px 0 0 0;
-}
-
-/* Grid Layout */
-.main-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-}
-
-@media (max-width: 768px) {
-  .main-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Cards */
-.card {
-  background: white;
-  border-radius: 4px;
-  border: 1px solid #e0e0e0;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-  display: flex;
-  flex-direction: column;
-}
-
-.card-header {
-  padding: 12px 15px;
-  border-bottom: 1px solid #f0f0f0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.card-title {
-  font-size: 0.9rem;
-  font-weight: 700;
-  margin: 0;
-  text-transform: uppercase;
-  color: #444;
-}
-
-.card-body.no-padding {
-  padding: 0;
-}
-
-.scroll-area {
-  max-height: 65vh;
-  overflow-y: auto;
-}
-
-.loading-state {
-  padding: 40px;
-  text-align: center;
-  color: #666;
-  font-style: italic;
-}
-
-/* Table */
-.erp-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.85rem;
-}
-
-.erp-table th {
-  background: #f8f9fa;
-  text-align: left;
-  padding: 12px 15px;
-  border-bottom: 2px solid #dee2e6;
-  color: #666;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-.erp-table td {
-  padding: 12px 15px;
-  border-bottom: 1px solid #eee;
-}
-
-.erp-table tr:hover {
-  background-color: #fcfcfc;
-  cursor: pointer;
-}
-
-.erp-table tr.selected {
-  background-color: #fff4ed;
-}
-
-.text-center {
-  text-align: center;
-}
-
-/* Status Tags */
 .status-tag {
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 4px 10px;
-  border-radius: 4px;
-  text-transform: uppercase;
+  font-size: 0.7rem; font-weight: 700; padding: 3px 8px; border-radius: 4px; text-transform: uppercase;
+}
+.status-tag.available { background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; }
+.status-tag.demand { background: #fef3c7; color: #d97706; border: 1px solid #fde68a; }
+
+/* Estilo para a INFO VISUAL de CORTADO */
+.status-tag.cut-badge {
+  background: #fff7ed;
+  color: #f37021;
+  border: 1px solid #ffedd5;
+  font-size: 0.65rem;
 }
 
-.status-tag.available {
-  background: #e0f2fe;
-  color: #0284c7;
-  border: 1px solid #bae6fd;
-}
-
-.status-tag.demand {
-  background: #fef3c7;
-  color: #d97706;
-  border: 1px solid #fde68a;
-}
-
-/* Buttons */
 .btn-primary {
-  background-color: #001f3f;
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 4px;
-  font-weight: 700;
-  cursor: pointer;
-  font-size: 0.85rem;
-  transition: background 0.2s;
+  background-color: #001f3f; color: white; border: none; padding: 12px 24px;
+  border-radius: 4px; font-weight: 700; cursor: pointer; transition: background 0.2s;
 }
-
-.btn-primary:hover:not(:disabled) {
-  background-color: #003366;
-}
-
-.btn-primary:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
-.count-badge {
-  background: #f37021;
-  color: white;
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-size: 0.75rem;
-  font-weight: 700; 
-}
+.btn-primary:disabled { background-color: #ccc; cursor: not-allowed; }
+.count-badge { background: #f37021; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; }
+.text-center { text-align: center; }
+.loading-state { padding: 40px; text-align: center; color: #666; }
 </style>

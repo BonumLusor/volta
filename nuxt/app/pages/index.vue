@@ -34,9 +34,9 @@
                                     <td class="text-center">
                                         <input type="checkbox"
                                             :checked="materialSelecionado?.cod_produto === material.cod_produto"
-                                            @click.stop readonly />
+                                            @click.stop="toggleRolo(material)" />
                                     </td>
-                                    <td><strong>{{ material.nome_produto }}</strong></td>
+                                    <td><strong>{{ material.nome_produto }} (cod: {{ material.cod_produto }})</strong></td>
                                 </tr>
                             </tbody>
                         </table>

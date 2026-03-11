@@ -382,24 +382,44 @@ async function getRouteRules(arg) {
 }
 const _routes = [
   {
+    name: "ops",
+    path: "/ops",
+    component: () => import('./ops-C-7nnoLu.mjs')
+  },
+  {
     name: "corte",
     path: "/corte",
-    component: () => import('./corte-DBakzsxo.mjs')
+    component: () => import('./corte-TKdL8CbG.mjs')
   },
   {
     name: "index",
     path: "/",
-    component: () => import('./index-DHmFiPtH.mjs')
+    component: () => import('./index-ct6Xx0PC.mjs')
   },
   {
-    name: "materiais",
-    path: "/materiais",
-    component: () => import('./materiais-BlurMmir.mjs')
+    name: "rolos",
+    path: "/rolos",
+    component: () => import('./rolos-CVs0qPwQ.mjs')
+  },
+  {
+    name: "planos",
+    path: "/planos",
+    component: () => import('./planos-M4dPBYX5.mjs')
+  },
+  {
+    name: "orcamento",
+    path: "/orcamento",
+    component: () => import('./orcamento-o-jqVWUo.mjs')
+  },
+  {
+    name: "importador",
+    path: "/importador",
+    component: () => import('./importador-BNphUw5B.mjs')
   },
   {
     name: "realizacao",
     path: "/realizacao",
-    component: () => import('./realizacao-8o6wfBqf.mjs')
+    component: () => import('./realizacao-Z84brQDm.mjs')
   }
 ];
 const ROUTE_KEY_PARENTHESES_RE = /(:\w+)\([^)]+\)/g;
@@ -734,14 +754,14 @@ const revive_payload_server_MVtmlZaQpj6ApFmshWfUWl5PehCebzaBf2NuRMiIbms = /* @__
     }
   }
 });
-const components_plugin_4kY4pyzJIYX99vmMAAIorFf3CnAaptHitJgf7JxiED8 = /* @__PURE__ */ defineNuxtPlugin({
+const components_plugin_z4hgvsiddfKkfXTP6M8M4zG5Cb7sGnDhcryKVM45Di4 = /* @__PURE__ */ defineNuxtPlugin({
   name: "nuxt:global-components"
 });
 const plugins = [
   unhead_k2P3m_ZDyjlr2mMYnoDPwavjsDN8hBlk9cFai0bbopU,
   plugin,
   revive_payload_server_MVtmlZaQpj6ApFmshWfUWl5PehCebzaBf2NuRMiIbms,
-  components_plugin_4kY4pyzJIYX99vmMAAIorFf3CnAaptHitJgf7JxiED8
+  components_plugin_z4hgvsiddfKkfXTP6M8M4zG5Cb7sGnDhcryKVM45Di4
 ];
 const defineRouteProvider = (name = "RouteProvider") => defineComponent({
   name,
